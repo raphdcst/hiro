@@ -1,0 +1,47 @@
+{
+	"name": "hiro",
+	"version": "0.0.1",
+	"module": "src/main.ts",
+	"type": "module",
+	"private": true,
+	"scripts": {
+		"prepare": "husky",
+		"dev": "bun run --watch src/main.ts",
+		"start": "bun run src/main.ts",
+		"type-check": "tsc --noEmit"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "2.2.2",
+		"@commitlint/cli": "^19.8.1",
+		"@commitlint/config-conventional": "^19.8.1",
+		"@types/bun": "latest",
+		"@types/pg": "^8.15.6",
+		"commitizen": "^4.3.1",
+		"cz-conventional-changelog": "^3.3.0",
+		"drizzle-kit": "^0.31.6",
+		"husky": "^9.1.7",
+		"lint-staged": "^16.1.6",
+		"tsx": "^4.20.6"
+	},
+	"peerDependencies": {
+		"typescript": "^5"
+	},
+	"dependencies": {
+		"discord.js": "^14.22.1",
+		"neverthrow": "^8.2.0",
+		"reflect-metadata": "^0.2.2",
+		"tsyringe": "^4.10.0",
+		"winston": "^3.17.0",
+		"zod": "^4.1.5"
+	},
+	"config": {
+		"commitizen": {
+			"path": "./node_modules/cz-conventional-changelog"
+		}
+	},
+	"lint-staged": {
+		"*.{js,ts,cjs,mjs,d.cts,d.mts,jsx,tsx,json,jsonc}": [
+			"biome check --write --no-errors-on-unmatched"
+		]
+	}
+}
