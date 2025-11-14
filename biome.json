@@ -27,13 +27,16 @@
 			"indentStyle": "tab",
 			"semicolons": "asNeeded",
 			"trailingCommas": "all"
+		},
+		"parser": {
+			"unsafeParameterDecoratorsEnabled": true
 		}
 	},
 	"assist": {
 		"enabled": true,
 		"actions": {
 			"source": {
-				"organizeImports": "on",
+				"organizeImports": "off",
 				"useSortedKeys": "off"
 			}
 		}
