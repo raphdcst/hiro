@@ -4,6 +4,6 @@
 	"editor.codeActionsOnSave": {
 		"source.fixAll.biome": "always",
 		"source.biome": "always",
-		"source.organizeImports.biome": "always"
+		"source.organizeImports.biome": "never"
 	}
 }
