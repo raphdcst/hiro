@@ -20,19 +20,18 @@
 		"@commitlint/cli": "^19.8.1",
 		"@commitlint/config-conventional": "^19.8.1",
 		"@types/bun": "latest",
-		"@types/pg": "^8.15.6",
 		"commitizen": "^4.3.1",
 		"cz-conventional-changelog": "^3.3.0",
 		"drizzle-kit": "^0.31.6",
 		"husky": "^9.1.7",
-		"lint-staged": "^16.1.6",
-		"tsx": "^4.20.6"
+		"lint-staged": "^16.1.6"
 	},
 	"peerDependencies": {
 		"typescript": "^5"
 	},
 	"dependencies": {
 		"discord.js": "^14.22.1",
+		"drizzle-orm": "^0.44.7",
 		"neverthrow": "^8.2.0",
 		"reflect-metadata": "^0.2.2",
 		"tsyringe": "^4.10.0",
