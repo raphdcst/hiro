@@ -37,6 +37,7 @@
 			"#core/*": ["./src/core/*"],
 			"#managers/*": ["./src/core/managers/*"],
 			"#services/*": ["./src/services/*"],
+			"#interfaces/*": ["./src/interfaces/*"],
 			"#plugins/*": ["./src/plugins/*"],
 			"#commands/*": ["./src/commands/*"],
 			"#middlewares/*": ["./src/middlewares/*"]
