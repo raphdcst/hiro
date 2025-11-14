@@ -18,12 +18,12 @@
 
 ```json
 "paths": {
-			"#config/*": ["./src/config/*"],
-			"#base/*": ["./src/core/base/*"],
-			"#commands/*": ["./src/core/commands/*"],
-			"#contracts/*": ["./src/core/contracts/*"],
-			"#plugins/*": ["./src/core/plugins/*"],
-			"#services/*": ["./src/core/services/*"]
+			"#core/*": ["./src/core/*"],
+			"#managers/*": ["./src/core/managers/*"],
+			"#services/*": ["./src/services/*"],
+			"#plugins/*": ["./src/plugins/*"],
+			"#commands/*": ["./src/commands/*"],
+			"#middlewares/*": ["./src/middlewares/*"]
 		}
 ```
 
