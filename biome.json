@@ -27,6 +27,9 @@
 			"indentStyle": "tab",
 			"semicolons": "asNeeded",
 			"trailingCommas": "all"
+		},
+		"parser": {
+			"unsafeParameterDecoratorsEnabled": true
 		}
 	},
 	"assist": {
