@@ -1,14 +1,22 @@
 import { Client, type ClientOptions, Events } from 'discord.js'
 import { err, fromPromise, ok, type Result } from 'neverthrow'
-import { container, singleton } from 'tsyringe'
+import { container, singleton, type InjectionToken } from 'tsyringe'
 import type winston from 'winston'
+
+// global
 import { env } from '#core/env'
 import { type ShutdownError, StartupError } from '#core/errors'
 import { createLogger } from '#core/logger'
-import type { ServiceStatus } from '#core/service'
-import { CommandManager } from '#managers/command.manager'
-import { PluginManager, type PluginHealth } from '#managers/plugin.manager'
+
+// base
+import type { BaseService, ServiceStatus } from '#core/service'
+import type { BasePlugin } from '#core/plugin'
+import type { BaseCommand } from '#core/command'
+
+// managers
 import { ServiceManager } from '#managers/service.manager'
+import { PluginManager, type PluginHealth } from '#managers/plugin.manager'
+import { CommandManager } from '#managers/command.manager'
 
 export interface HealthCheck {
 	status: 'healthy' | 'degraded' | 'unhealthy'
@@ -20,6 +28,9 @@ export interface HealthCheck {
 
 export interface BotClientOptions extends ClientOptions {
 	config?: Record<string, unknown>
+	services: Array<InjectionToken<BaseService>>
+	plugins: Array<InjectionToken<BasePlugin>>
+	commands: Array<InjectionToken<BaseCommand>>
 }
 
 @singleton()
@@ -39,10 +50,32 @@ export class BotClient extends Client<true> {
 		this.pluginManager = container.resolve(PluginManager)
 		this.commandManager = container.resolve(CommandManager)
 
+		this.registerServices(options.services)
+		this.registerPlugins(options.plugins)
+		this.registerCommands(options.commands)
+
 		this.on(Events.InteractionCreate, async (interaction) => {
 			if (!interaction.isChatInputCommand()) return
 			await this.commandManager.handleInteraction(interaction, this)
 		})
+	}
+
+	private registerServices(services: Array<InjectionToken<BaseService>>): void {
+		for (const service of services) {
+			this.serviceManager.register(container.resolve(service))
+		}
+	}
+
+	private registerPlugins(plugins: Array<InjectionToken<BasePlugin>>): void {
+		for (const plugin of plugins) {
+			this.pluginManager.register(container.resolve(plugin))
+		}
+	}
+
+	private registerCommands(commands: Array<InjectionToken<BaseCommand>>): void {
+		for (const command of commands) {
+			this.commandManager.register(container.resolve(command))
+		}
 	}
 
 	public async start(): Promise<Result<void, StartupError>> {
