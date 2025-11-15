@@ -16,7 +16,7 @@ import type { BaseService, ServiceStatus } from '#core/service'
 @injectable()
 export class ServiceManager {
 	private readonly logger: winston.Logger
-	private readonly services = new Map<string, BaseService>()
+	readonly services = new Map<string, BaseService>()
 	private readonly serviceNames: string[] = []
 
 	constructor() {

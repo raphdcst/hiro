@@ -147,7 +147,7 @@ export class BotClient extends Client<true> {
 			)
 		}
 
-		for (const service of this.serviceManager['services'].values()) {
+		for (const service of this.serviceManager.services.values()) {
 			await this.pluginManager.triggerHook('onServiceConnected', service)
 		}
 
