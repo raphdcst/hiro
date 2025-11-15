@@ -50,6 +50,18 @@ export class BotClient extends Client<true> {
 		this.pluginManager = container.resolve(PluginManager)
 		this.commandManager = container.resolve(CommandManager)
 
+		for (const toRegister of [
+			options.services,
+			options.plugins,
+			options.commands,
+		]) {
+			if (toRegister.length === 0) {
+				this.logger.warn(
+					`No ${toRegister === options.services ? 'services' : toRegister === options.plugins ? 'plugins' : 'commands'} to register`,
+				)
+			}
+		}
+
 		this.registerServices(options.services)
 		this.registerPlugins(options.plugins)
 		this.registerCommands(options.commands)
