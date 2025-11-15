@@ -1,5 +1,5 @@
 import { err, ok, type Result } from 'neverthrow'
-import { container, injectable } from 'tsyringe'
+import { container, injectable, type InjectionToken } from 'tsyringe'
 import type winston from 'winston'
 import {
 	ConnectionError,
@@ -40,7 +40,10 @@ export class ServiceManager {
 		this.logger.debug(`Registering service: ${service.name}`)
 		this.services.set(service.name, service)
 		this.serviceNames.push(service.name)
-		container.registerInstance(service.constructor as any, service)
+		container.registerInstance(
+			service.constructor as InjectionToken<BaseService>,
+			service,
+		)
 		container.register(service.token, { useValue: service })
 		return ok(undefined)
 	}
@@ -51,7 +54,11 @@ export class ServiceManager {
 	 */
 	public async connectAll(): Promise<Result<void, ConnectionError>> {
 		for (const name of this.serviceNames) {
-			const service = this.services.get(name)!
+			const service = this.services.get(name)
+			if (!service) {
+				this.logger.warn(`Service "${name}" not found during connectAll.`)
+				continue
+			}
 			this.logger.debug(`Connecting service: ${name}`)
 			const result = await service.connect()
 			if (result.isErr()) {
@@ -76,7 +83,11 @@ export class ServiceManager {
 	public async disconnectAll(): Promise<Result<void, DisconnectionError>> {
 		const reversedServiceNames = [...this.serviceNames].reverse()
 		for (const name of reversedServiceNames) {
-			const service = this.services.get(name)!
+			const service = this.services.get(name)
+			if (!service) {
+				this.logger.warn(`Service "${name}" not found during disconnectAll.`)
+				continue
+			}
 			this.logger.debug(`Disconnecting service: ${name}`)
 			const result = await service.disconnect()
 			if (result.isErr()) {
@@ -96,7 +107,11 @@ export class ServiceManager {
 	public async getHealth(): Promise<Record<string, ServiceStatus>> {
 		const health: Record<string, ServiceStatus> = {}
 		for (const name of this.serviceNames) {
-			const service = this.services.get(name)!
+			const service = this.services.get(name)
+			if (!service) {
+				this.logger.warn(`Service "${name}" not found during getHealth.`)
+				continue
+			}
 			const statusResult = await service.getStatus()
 			health[name] = statusResult.isOk()
 				? statusResult.value

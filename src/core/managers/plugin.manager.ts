@@ -1,5 +1,5 @@
 import { err, fromPromise, ok, type Result } from 'neverthrow'
-import { container, injectable } from 'tsyringe'
+import { container, injectable, type InjectionToken } from 'tsyringe'
 import type winston from 'winston'
 import {
 	PluginError,
@@ -63,7 +63,10 @@ export class PluginManager {
 		this.logger.debug(`Registering plugin: ${plugin.name}`)
 		this.plugins.set(plugin.name, plugin)
 		this.pluginNames.push(plugin.name)
-		container.registerInstance(plugin.constructor as any, plugin)
+		container.registerInstance(
+			plugin.constructor as InjectionToken<BasePlugin>,
+			plugin,
+		)
 		return ok(undefined)
 	}
 
@@ -86,8 +89,12 @@ export class PluginManager {
 			: this.pluginNames
 
 		for (const name of pluginNames) {
-			const plugin = this.plugins.get(name)!
-			const hook = plugin[hookName] as (...a: unknown[]) => Promise<any>
+			const plugin = this.plugins.get(name)
+			if (!plugin) {
+				this.logger.warn(`Plugin "${name}" not found during hook trigger.`)
+				continue
+			}
+			const hook = plugin[hookName] as (...a: unknown[]) => Promise<unknown>
 
 			if (typeof hook === 'function') {
 				const hookResult = await fromPromise(
@@ -111,8 +118,8 @@ export class PluginManager {
 				}
 
 				if (hookResult.isOk()) {
-					const result = hookResult.value
-					if (result && result.isErr()) {
+					const result = hookResult.value as Result<unknown, Error>
+					if (result?.isErr()) {
 						const error = new PluginError(
 							`Hook "${hookName}" in plugin "${name}" failed.`,
 							{
