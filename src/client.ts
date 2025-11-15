@@ -4,14 +4,13 @@ import { container } from 'tsyringe'
 import { BotClient } from '#core/client'
 
 // services
-import { CacheService } from '#services/cache.service'
-import { DatabaseService } from '#services/database.service'
+import { CacheService } from '#services/cache'
+import { DatabaseService } from '#services/database'
 
 // plugins
 
 // commands
-import { DatabaseCommand } from '#commands/db.command'
-import { PingCommand } from '#commands/ping.command'
+import { PingCommand } from '#commands/ping.native'
 
 const client = new BotClient({
 	intents: [
@@ -21,7 +20,7 @@ const client = new BotClient({
 	],
 	services: [DatabaseService, CacheService],
 	plugins: [],
-	commands: [DatabaseCommand, PingCommand],
+	commands: [PingCommand],
 	config: {},
 })
 
