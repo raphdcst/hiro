@@ -15,6 +15,10 @@ import {
 } from '#interfaces/database'
 import { handleConnection, handleDisconnection } from '../utils/connection'
 
+/**
+ * Service for interacting with the database.
+ * @implements IDatabaseServiceType
+ */
 @singleton()
 export class DatabaseService
 	extends BaseService
@@ -25,6 +29,10 @@ export class DatabaseService
 	private _db: BunSQLDatabase | undefined
 	private _sql: SQL | undefined
 
+	/**
+	 * The Drizzle database instance.
+	 * @throws {Error} If the database service is not connected.
+	 */
 	public get db(): BunSQLDatabase {
 		if (!this._db) {
 			throw new Error(
@@ -34,6 +42,10 @@ export class DatabaseService
 		return this._db
 	}
 
+	/**
+	 * The Bun SQL instance.
+	 * @throws {Error} If the database service is not connected.
+	 */
 	public get sql(): SQL {
 		if (!this._sql) {
 			throw new Error(
@@ -43,6 +55,10 @@ export class DatabaseService
 		return this._sql
 	}
 
+	/**
+	 * Connects to the database.
+	 * @returns A `Result` indicating success or a `ConnectionError`.
+	 */
 	public async connect(): Promise<Result<void, ConnectionError>> {
 		this.logger.debug('Connecting to database...')
 
@@ -57,6 +73,10 @@ export class DatabaseService
 		)
 	}
 
+	/**
+	 * Disconnects from the database.
+	 * @returns A `Result` indicating success or a `DisconnectionError`.
+	 */
 	public async disconnect(): Promise<Result<void, DisconnectionError>> {
 		if (!this._sql) {
 			return ok(undefined)
@@ -71,6 +91,10 @@ export class DatabaseService
 		)
 	}
 
+	/**
+	 * Retrieves the status of the database service.
+	 * @returns A `Result` with the service status or a `StatusError`.
+	 */
 	public async getStatus(): Promise<Result<ServiceStatus, StatusError>> {
 		if (!this._sql || !this._db) {
 			return ok({ connected: false, healthy: false })

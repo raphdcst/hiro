@@ -9,6 +9,9 @@ import {
 import { createLogger } from '#core/logger'
 import type { BasePlugin } from '#core/plugin'
 
+/**
+ * The available plugin hooks.
+ */
 export type PluginHook =
 	| 'onReady'
 	| 'onServiceConnected'
@@ -18,12 +21,21 @@ export type PluginHook =
 	| 'onBeforeDestroy'
 	| 'onDestroy'
 
+/**
+ * Represents the health status of a plugin.
+ */
 export interface PluginHealth {
+	/** Whether the plugin is loaded. */
 	loaded: boolean
+	/** Whether the plugin is healthy. */
 	healthy: boolean
+	/** Additional metadata about the plugin's health. */
 	metadata?: Record<string, unknown>
 }
 
+/**
+ * Manages the registration and lifecycle of plugins.
+ */
 @injectable()
 export class PluginManager {
 	private readonly logger: winston.Logger
@@ -34,6 +46,11 @@ export class PluginManager {
 		this.logger = createLogger('plugin', 'manager')
 	}
 
+	/**
+	 * Registers a new plugin.
+	 * @param plugin The plugin to register.
+	 * @returns A `Result` indicating success or a `RegistrationError`.
+	 */
 	public register(plugin: BasePlugin): Result<void, RegistrationError> {
 		if (this.plugins.has(plugin.name)) {
 			return err(
@@ -50,6 +67,12 @@ export class PluginManager {
 		return ok(undefined)
 	}
 
+	/**
+	 * Triggers a hook in all registered plugins.
+	 * @param hookName The name of the hook to trigger.
+	 * @param args The arguments to pass to the hook.
+	 * @returns A `Result` indicating success or a `PluginError`.
+	 */
 	public async triggerHook(
 		hookName: PluginHook,
 		...args: unknown[]
@@ -108,6 +131,10 @@ export class PluginManager {
 		return ok(undefined)
 	}
 
+	/**
+	 * Retrieves the health status of all registered plugins.
+	 * @returns A record of plugin health statuses.
+	 */
 	public async getHealth(): Promise<Record<string, PluginHealth>> {
 		const health: Record<string, PluginHealth> = {}
 		for (const name of this.pluginNames) {
@@ -119,6 +146,11 @@ export class PluginManager {
 		return health
 	}
 
+	/**
+	 * Retrieves a plugin by its name.
+	 * @param name The name of the plugin to retrieve.
+	 * @returns A `Result` with the plugin or a `PluginNotFoundError`.
+	 */
 	public get(name: string): Result<BasePlugin, PluginNotFoundError> {
 		const plugin = this.plugins.get(name)
 		if (!plugin) {

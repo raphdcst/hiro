@@ -6,6 +6,13 @@ import {
 import { err, ok, type Result, fromPromise, fromThrowable } from 'neverthrow'
 import type winston from 'winston'
 
+/**
+ * Handles a function that can be either a promise or a regular function.
+ * @param fn The function to handle.
+ * @param errFn The function to call if an error occurs.
+ * @returns A `Result` with the result of the function or a `BaseError`.
+ * @internal
+ */
 export async function handleFunctionType<T>(
 	fn: PromiseLike<T> | (() => void),
 	errFn: (err: unknown) => BaseError,
@@ -18,6 +25,14 @@ export async function handleFunctionType<T>(
 	return Promise.resolve(result)
 }
 
+/**
+ * Handles a connection process.
+ * @param resolve The function to resolve.
+ * @param successMsg The message to log on success.
+ * @param errMsg The message to use for the error on failure.
+ * @param logger The logger instance.
+ * @returns A `Result` indicating success or a `ConnectionError`.
+ */
 export async function handleConnection<T>(
 	resolve: PromiseLike<T> | (() => void),
 	successMsg: string,
@@ -37,6 +52,15 @@ export async function handleConnection<T>(
 	return ok(undefined)
 }
 
+/**
+ * Handles a disconnection process.
+ * @param resolve The function to resolve.
+ * @param successMsg The message to log on success.
+ * @param errMsg The message to use for the error on failure.
+ * @param logger The logger instance.
+ * @param onSuccess A function to call on success.
+ * @returns A `Result` indicating success or a `DisconnectionError`.
+ */
 export async function handleDisconnection<T>(
 	resolve: PromiseLike<T> | (() => void),
 	successMsg: string,

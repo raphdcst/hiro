@@ -16,12 +16,20 @@ import { RedisClient } from 'bun'
 import { ICacheService, type ICacheServiceType } from '#interfaces/cache'
 import { handleConnection, handleDisconnection } from '../utils/connection'
 
+/**
+ * Service for interacting with the Redis cache.
+ * @implements ICacheServiceType
+ */
 @singleton()
 export class CacheService extends BaseService implements ICacheServiceType {
 	public readonly name = 'cache'
 	public readonly token = ICacheService
 	private _redis: RedisClient | undefined
 
+	/**
+	 * The Redis client instance.
+	 * @throws {Error} If the cache service is not connected.
+	 */
 	public get redis(): RedisClient {
 		if (!this._redis) {
 			throw new Error(
@@ -31,6 +39,10 @@ export class CacheService extends BaseService implements ICacheServiceType {
 		return this._redis
 	}
 
+	/**
+	 * Connects to the Redis cache.
+	 * @returns A `Result` indicating success or a `ConnectionError`.
+	 */
 	public async connect(): Promise<Result<void, ConnectionError>> {
 		this.logger.debug('Connecting to Redis cache...')
 		this._redis = new RedisClient(env.REDIS_URL)
@@ -43,6 +55,10 @@ export class CacheService extends BaseService implements ICacheServiceType {
 		)
 	}
 
+	/**
+	 * Disconnects from the Redis cache.
+	 * @returns A `Result` indicating success or a `DisconnectionError`.
+	 */
 	public async disconnect(): Promise<Result<void, DisconnectionError>> {
 		if (!this._redis) {
 			return ok(undefined)
@@ -61,6 +77,10 @@ export class CacheService extends BaseService implements ICacheServiceType {
 		)
 	}
 
+	/**
+	 * Retrieves the status of the cache service.
+	 * @returns A `Result` with the service status or a `StatusError`.
+	 */
 	public async getStatus(): Promise<Result<ServiceStatus, StatusError>> {
 		if (!this._redis) {
 			return ok({ connected: false, healthy: false })
@@ -76,11 +96,22 @@ export class CacheService extends BaseService implements ICacheServiceType {
 		}))
 	}
 
+	/**
+	 * Retrieves a value from the cache.
+	 * @param key The key of the value to retrieve.
+	 * @returns The cached value or null if not found.
+	 */
 	public async get<T>(key: string): Promise<T | null> {
 		const value = await this.redis.get(key)
 		return value ? (JSON.parse(value) as T) : null
 	}
 
+	/**
+	 * Stores a value in the cache.
+	 * @param key The key of the value to store.
+	 * @param value The value to store.
+	 * @param ttlSeconds The time-to-live in seconds.
+	 */
 	public async set<T>(
 		key: string,
 		value: T,
@@ -93,6 +124,10 @@ export class CacheService extends BaseService implements ICacheServiceType {
 		}
 	}
 
+	/**
+	 * Deletes a value from the cache.
+	 * @param key The key of the value to delete.
+	 */
 	public async delete(key: string): Promise<void> {
 		await this.redis.del(key)
 	}

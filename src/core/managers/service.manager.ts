@@ -10,6 +10,9 @@ import {
 import { createLogger } from '#core/logger'
 import type { BaseService, ServiceStatus } from '#core/service'
 
+/**
+ * Manages the registration and lifecycle of services.
+ */
 @injectable()
 export class ServiceManager {
 	private readonly logger: winston.Logger
@@ -20,6 +23,11 @@ export class ServiceManager {
 		this.logger = createLogger('service', 'manager')
 	}
 
+	/**
+	 * Registers a new service.
+	 * @param service The service to register.
+	 * @returns A `Result` indicating success or a `RegistrationError`.
+	 */
 	public register(service: BaseService): Result<void, RegistrationError> {
 		if (this.services.has(service.name)) {
 			return err(
@@ -37,6 +45,10 @@ export class ServiceManager {
 		return ok(undefined)
 	}
 
+	/**
+	 * Connects all registered services in the order they were registered.
+	 * @returns A `Result` indicating success or a `ConnectionError`.
+	 */
 	public async connectAll(): Promise<Result<void, ConnectionError>> {
 		for (const name of this.serviceNames) {
 			const service = this.services.get(name)!
@@ -57,6 +69,10 @@ export class ServiceManager {
 		return ok(undefined)
 	}
 
+	/**
+	 * Disconnects all registered services in reverse order.
+	 * @returns A `Result` indicating success or a `DisconnectionError`.
+	 */
 	public async disconnectAll(): Promise<Result<void, DisconnectionError>> {
 		const reversedServiceNames = [...this.serviceNames].reverse()
 		for (const name of reversedServiceNames) {
@@ -73,6 +89,10 @@ export class ServiceManager {
 		return ok(undefined)
 	}
 
+	/**
+	 * Retrieves the health status of all registered services.
+	 * @returns A record of service health statuses.
+	 */
 	public async getHealth(): Promise<Record<string, ServiceStatus>> {
 		const health: Record<string, ServiceStatus> = {}
 		for (const name of this.serviceNames) {
@@ -89,6 +109,11 @@ export class ServiceManager {
 		return health
 	}
 
+	/**
+	 * Retrieves a service by its name.
+	 * @param name The name of the service to retrieve.
+	 * @returns A `Result` with the service or a `ServiceNotFoundError`.
+	 */
 	public get(name: string): Result<BaseService, ServiceNotFoundError> {
 		const service = this.services.get(name)
 		if (!service) {
