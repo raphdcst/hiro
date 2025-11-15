@@ -1,11 +1,6 @@
 import winston from 'winston'
 import { env } from '#core/env'
 
-enum LogType {
-	Timestamp = 'timestamp',
-	Message = 'message',
-}
-
 enum LabelType {
 	Process = 'process',
 	Client = 'client',
