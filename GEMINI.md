@@ -57,11 +57,9 @@ src/
 │   │   ├── service.manager.ts # Manages the lifecycle of services
 │   │   ├── plugin.manager.ts  # Manages plugin hooks and registry
 │   │   └── command.manager.ts # Routes and executes commands
-│   ├── error_handler.ts       # Global error handler
 │   ├── env.ts                 # Validated environment variables (Zod)
 │   ├── logger.ts              # Logger factory (Winston)
-│   ├── decorators.ts          # Middleware decorators
-│   ├── command.ts             # BaseCommand abstract class
+│   ├── command.ts             # Command factory function
 │   ├── middleware.ts          # Middleware types and utilities
 │   ├── plugin.ts              # BasePlugin abstract class
 │   ├── service.ts             # BaseService abstract class
@@ -71,6 +69,7 @@ src/
 ├── plugins/                   # Plugin implementations
 ├── services/                  # Service implementations
 ├── interfaces/                # Service interfaces for DI
+├── utils/                     # Utils
 ├── client.ts                  # BotClient instance
 └── main.ts                    # Entry point
 ```
@@ -222,14 +221,14 @@ class PluginManager {
 
 ```ts
 class CommandManager {
-  register(command: BaseCommand): Result<void, RegistrationError>;
+  register(command: Command): Result<void, RegistrationError>;
 
   async handleInteraction(
     interaction: ChatInputCommandInteraction,
     client: BotClient
   ): Promise<Result<void, CommandError>>;
 
-  get(name: string): Result<BaseCommand, CommandNotFoundError>;
+  get(name: string): Result<Command, CommandNotFoundError>;
 }
 ```
 
@@ -237,7 +236,7 @@ class CommandManager {
 
 ---
 
-## 🧩 Base Classes
+## 🧩 Core Building Blocks
 
 ### 1) `BaseService`
 
@@ -344,10 +343,10 @@ abstract class BasePlugin {
 
 **Logger**: `plugin:<name>`
 
-### 3) `BaseCommand`
+### 3) `Command`
 
 **Location**: `./src/core/command.ts`
-**Usage**: Classes in `./src/commands/<name>.command.ts`
+**Usage**: Files in `./src/commands/<name>.command.ts` using the `createCommand` factory.
 
 **Responsibilities**:
 
@@ -358,18 +357,13 @@ abstract class BasePlugin {
 **Interface**:
 
 ```ts
-abstract class BaseCommand {
-  abstract readonly name: string;
-  abstract readonly description: string;
-  protected logger: winston.Logger;
-
-  constructor();
-
-  abstract buildCommand(): SlashCommandBuilder;
-  abstract execute(ctx: CommandContext): Promise<Result<void, CommandError>>;
-
-  use(middleware: Middleware): void;
+interface Command {
+  data: SlashCommandBuilder;
+  run: (ctx: CommandContext) => Promise<Result<void, CommandError>>;
+  middlewares?: Middleware[];
 }
+
+const createCommand = (command: Command): Command => command;
 ```
 
 **CommandContext**:
@@ -378,40 +372,48 @@ abstract class BaseCommand {
 interface CommandContext {
   interaction: ChatInputCommandInteraction;
   client: BotClient;
-  metadata: TypedMetadata; // Typed map for sharing between middlewares
+  container: typeof container;
+  metadata: TypedMetadata;
 }
 ```
 
-**Injection**: Can inject **Services** and **Plugins** via TSyringe.
+**Injection**: Services and Plugins can be resolved from the `container` inside the `run` function.
 
-**Logger**: `command:<name>`
+**Logger**: `command:<name>` (Handled by middlewares like `loggerMiddleware`)
 
 **Example**:
 
 ```ts
-@injectable()
-export class PingCommand extends BaseCommand {
-  readonly name = "ping";
-  readonly description = "Replies with Pong!";
+import { SlashCommandBuilder } from "discord.js";
+import { ok } from "neverthrow";
+import { createCommand } from "#core/command";
+import {
+  IDatabaseService,
+  type IDatabaseService as IDatabaseServiceType,
+} from "#interfaces/database";
 
-  constructor(@inject(IDatabaseService) private db: IDatabaseService) {
-    super();
-  }
+export const db = createCommand({
+  data: new SlashCommandBuilder()
+    .setName("db")
+    .setDescription("Test the database connection."),
+  run: async ({ interaction, container }) => {
+    const db = container.resolve<IDatabaseServiceType>(IDatabaseService);
+    const result = await db.getStatus();
 
-  buildCommand(): SlashCommandBuilder {
-    return new SlashCommandBuilder()
-      .setName(this.name)
-      .setDescription(this.description);
-  }
+    if (result.isErr()) {
+      await interaction.reply({
+        content: "Failed to get database status.",
+      });
+      return ok(undefined);
+    }
 
-  async execute(ctx: CommandContext): Promise<Result<void, CommandError>> {
-    await ctx.interaction.reply({
-      content: "Pong!",
-      ephemeral: true,
+    await interaction.reply({
+      content: `Database status: ${JSON.stringify(result.value)}`,
     });
+
     return ok(undefined);
-  }
-}
+  },
+});
 ```
 
 ### 4) Middlewares
@@ -636,7 +638,7 @@ interface HealthCheck {
   status: "healthy" | "degraded" | "unhealthy";
   uptime: number;
   version: string;
-  services: Record<string, ServiceHealth>;
+  services: Record<string, ServiceStatus>;
   plugins: Record<string, PluginHealth>;
 }
 
