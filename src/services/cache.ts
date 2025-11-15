@@ -9,10 +9,7 @@ import { ConnectionError, DisconnectionError, StatusError } from '#core/errors'
 // cache
 import { env } from '#core/env'
 import { RedisClient } from 'bun'
-import {
-	ICacheService,
-	type ICacheService as ICacheServiceType,
-} from '#interfaces/cache.interface'
+import { ICacheService, type ICacheServiceType } from '#interfaces/cache'
 
 @singleton()
 export class CacheService extends BaseService implements ICacheServiceType {

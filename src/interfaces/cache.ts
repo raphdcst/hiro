@@ -8,3 +8,5 @@ export interface ICacheService {
 	delete(key: string): Promise<void>
 	readonly redis: RedisClient
 }
+
+export type ICacheServiceType = ICacheService

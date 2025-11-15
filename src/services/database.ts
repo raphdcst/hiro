@@ -11,8 +11,8 @@ import {
 import { BaseService, type ServiceStatus } from '#core/service'
 import {
 	IDatabaseService,
-	type IDatabaseService as IDatabaseServiceType,
-} from '#interfaces/database.interface'
+	type IDatabaseServiceType,
+} from '#interfaces/database'
 
 @singleton()
 export class DatabaseService
