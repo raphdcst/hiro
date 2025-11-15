@@ -3,13 +3,18 @@ import { singleton } from 'tsyringe'
 import { BaseService, type ServiceStatus } from '#core/service'
 
 // error handling
-import { err, ok, Result, ResultAsync } from 'neverthrow'
-import { ConnectionError, DisconnectionError, StatusError } from '#core/errors'
+import { ok, type Result, ResultAsync } from 'neverthrow'
+import {
+	type ConnectionError,
+	type DisconnectionError,
+	StatusError,
+} from '#core/errors'
 
 // cache
 import { env } from '#core/env'
 import { RedisClient } from 'bun'
 import { ICacheService, type ICacheServiceType } from '#interfaces/cache'
+import { handleConnection, handleDisconnection } from '../utils/connection'
 
 @singleton()
 export class CacheService extends BaseService implements ICacheServiceType {
@@ -29,39 +34,31 @@ export class CacheService extends BaseService implements ICacheServiceType {
 	public async connect(): Promise<Result<void, ConnectionError>> {
 		this.logger.debug('Connecting to Redis cache...')
 		this._redis = new RedisClient(env.REDIS_URL)
-		const connectResult = await ResultAsync.fromPromise(
+
+		return handleConnection(
 			this._redis.ping(),
-			(error) =>
-				new ConnectionError('Failed to connect to Redis cache', {
-					cause: error as Error,
-				}),
+			'Redis cache connected successfully.',
+			'Failed to connect to Redis cache',
+			this.logger,
 		)
-
-		if (connectResult.isErr()) {
-			return err(connectResult.error)
-		}
-
-		this.logger.info('Redis cache connected successfully.')
-		return ok(undefined)
 	}
 
 	public async disconnect(): Promise<Result<void, DisconnectionError>> {
-		if (this._redis) {
-			this.logger.debug('Disconnecting from Redis cache...')
-			const result = Result.fromThrowable(
-				() => this._redis!.close(),
-				(error) =>
-					new DisconnectionError('Failed to disconnect from Redis cache', {
-						cause: error as Error,
-					}),
-			)()
-			if (result.isOk()) {
-				this._redis = undefined
-				this.logger.info('Redis cache disconnected successfully.')
-			}
-			return result
+		if (!this._redis) {
+			return ok(undefined)
 		}
-		return ok(undefined)
+
+		this.logger.debug('Disconnecting from Redis cache...')
+
+		return handleDisconnection(
+			() => this._redis!.close(),
+			'Redis cache disconnected successfully.',
+			'Failed to disconnect from Redis cache',
+			this.logger,
+			() => {
+				this._redis = undefined
+			},
+		)
 	}
 
 	public async getStatus(): Promise<Result<ServiceStatus, StatusError>> {

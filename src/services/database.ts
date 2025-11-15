@@ -4,7 +4,7 @@ import { fromPromise, ok, type Result } from 'neverthrow'
 import { singleton } from 'tsyringe'
 import { env } from '#core/env'
 import {
-	ConnectionError,
+	type ConnectionError,
 	type DisconnectionError,
 	StatusError,
 } from '#core/errors'
@@ -13,6 +13,7 @@ import {
 	IDatabaseService,
 	type IDatabaseServiceType,
 } from '#interfaces/database'
+import { handleConnection, handleDisconnection } from '../utils/connection'
 
 @singleton()
 export class DatabaseService
@@ -48,26 +49,26 @@ export class DatabaseService
 		this._sql = new SQL(env.DATABASE_URL)
 		this._db = drizzle(this._sql)
 
-		const result = fromPromise(
+		return handleConnection(
 			this._sql`SELECT 1`,
-			(error) =>
-				new ConnectionError('Failed to connect to database', {
-					cause: error as Error,
-				}),
-		).map(() => void this.logger.info('Database connection established.'))
-
-		return result
+			'Database connection established.',
+			'Failed to connect to database',
+			this.logger,
+		)
 	}
 
 	public async disconnect(): Promise<Result<void, DisconnectionError>> {
-		if (this._sql) {
-			this.logger.debug('Disconnecting from database...')
-			await this._sql.end()
-			this._sql = undefined
-			this._db = undefined
-			this.logger.info('Database connection closed.')
+		if (!this._sql) {
+			return ok(undefined)
 		}
-		return ok(undefined)
+
+		this.logger.debug('Disconnecting from database...')
+		return handleDisconnection(
+			() => this._sql!.close(),
+			'Database disconnected successfully.',
+			'Failed to disconnect from database',
+			this.logger,
+		)
 	}
 
 	public async getStatus(): Promise<Result<ServiceStatus, StatusError>> {
