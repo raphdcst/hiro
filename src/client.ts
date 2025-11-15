@@ -10,7 +10,8 @@ import { DatabaseService } from '#services/database'
 // plugins
 
 // commands
-import { PingCommand } from '#commands/ping.native'
+import { ping } from '#commands/ping.native'
+import { db } from '#commands/db.native'
 
 const client = new BotClient({
 	intents: [
@@ -20,7 +21,7 @@ const client = new BotClient({
 	],
 	services: [DatabaseService, CacheService],
 	plugins: [],
-	commands: [PingCommand],
+	commands: [ping, db],
 	config: {},
 })
 

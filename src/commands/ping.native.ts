@@ -1,26 +1,17 @@
-import { MessageFlags, SlashCommandBuilder } from 'discord.js'
-import { ok, type Result } from 'neverthrow'
-import { BaseCommand } from '#core/command'
-import type { CommandError } from '#core/errors'
-import type { CommandContext } from '#core/middleware'
+import { SlashCommandBuilder } from 'discord.js'
+import { ok } from 'neverthrow'
+import { createCommand } from '#core/command'
+import { loggerMiddleware } from '#middlewares/logger'
 
-export class PingCommand extends BaseCommand {
-	public readonly name = 'ping'
-	public readonly description = 'Replies with Pong!'
-
-	public buildCommand(): SlashCommandBuilder {
-		return new SlashCommandBuilder()
-			.setName(this.name)
-			.setDescription(this.description)
-	}
-
-	public async execute(
-		ctx: CommandContext,
-	): Promise<Result<void, CommandError>> {
-		await ctx.interaction.reply({
+export const ping = createCommand({
+	data: new SlashCommandBuilder()
+		.setName('ping')
+		.setDescription('Replies with Pong!'),
+	run: async ({ interaction }) => {
+		await interaction.reply({
 			content: 'Pong!',
-			flags: MessageFlags.Ephemeral,
 		})
 		return ok(undefined)
-	}
-}
+	},
+	middlewares: [loggerMiddleware()],
+})

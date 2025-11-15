@@ -11,36 +11,62 @@ import { createLogger } from '#core/logger'
 // base
 import type { BaseService, ServiceStatus } from '#core/service'
 import type { BasePlugin } from '#core/plugin'
-import type { BaseCommand } from '#core/command'
+import type { Command } from '#core/command'
 
 // managers
 import { ServiceManager } from '#managers/service.manager'
 import { PluginManager, type PluginHealth } from '#managers/plugin.manager'
 import { CommandManager } from '#managers/command.manager'
 
+/**
+ * Represents the health status of the bot.
+ */
 export interface HealthCheck {
+	/** The overall status of the bot. */
 	status: 'healthy' | 'degraded' | 'unhealthy'
+	/** The uptime of the bot in seconds. */
 	uptime: number
+	/** The version of the bot. */
 	version: string
+	/** The health status of each registered service. */
 	services: Record<string, ServiceStatus>
+	/** The health status of each registered plugin. */
 	plugins: Record<string, PluginHealth>
 }
 
+/**
+ * Options for the BotClient.
+ */
 export interface BotClientOptions extends ClientOptions {
+	/** Configuration flags for the bot. */
 	config?: Record<string, unknown>
+	/** An array of service classes to register. */
 	services: Array<InjectionToken<BaseService>>
+	/** An array of plugin classes to register. */
 	plugins: Array<InjectionToken<BasePlugin>>
-	commands: Array<InjectionToken<BaseCommand>>
+	/** An array of command objects to register. */
+	commands: Command[]
 }
 
+/**
+ * The main orchestrator for the Discord bot.
+ * @extends Client
+ */
 @singleton()
 export class BotClient extends Client<true> {
+	/** Configuration flags for the bot. */
 	public readonly config: Record<string, unknown>
+	/** Manages the lifecycle of services. */
 	public readonly serviceManager: ServiceManager
+	/** Manages plugins and orchestrates hooks. */
 	public readonly pluginManager: PluginManager
+	/** Manages and executes commands. */
 	public readonly commandManager: CommandManager
 	private readonly logger: winston.Logger
 
+	/**
+	 * @param options The options for the bot client.
+	 */
 	constructor(options: BotClientOptions) {
 		super(options)
 		this.config = options.config ?? {}
@@ -72,24 +98,43 @@ export class BotClient extends Client<true> {
 		})
 	}
 
+	/**
+	 * Registers the services with the service manager.
+	 * @param services The services to register.
+	 * @private
+	 */
 	private registerServices(services: Array<InjectionToken<BaseService>>): void {
 		for (const service of services) {
 			this.serviceManager.register(container.resolve(service))
 		}
 	}
 
+	/**
+	 * Registers the plugins with the plugin manager.
+	 * @param plugins The plugins to register.
+	 * @private
+	 */
 	private registerPlugins(plugins: Array<InjectionToken<BasePlugin>>): void {
 		for (const plugin of plugins) {
 			this.pluginManager.register(container.resolve(plugin))
 		}
 	}
 
-	private registerCommands(commands: Array<InjectionToken<BaseCommand>>): void {
+	/**
+	 * Registers the commands with the command manager.
+	 * @param commands The commands to register.
+	 * @private
+	 */
+	private registerCommands(commands: Command[]): void {
 		for (const command of commands) {
-			this.commandManager.register(container.resolve(command))
+			this.commandManager.register(command)
 		}
 	}
 
+	/**
+	 * Starts the bot, connects services, and logs in to Discord.
+	 * @returns A `Result` indicating success or a `StartupError`.
+	 */
 	public async start(): Promise<Result<void, StartupError>> {
 		this.logger.debug('Starting bot...')
 
@@ -156,6 +201,10 @@ export class BotClient extends Client<true> {
 		return ok(undefined)
 	}
 
+	/**
+	 * Stops the bot, disconnects services, and logs out from Discord.
+	 * @returns A `Result` indicating success or a `ShutdownError`.
+	 */
 	public async stop(): Promise<Result<void, ShutdownError>> {
 		this.logger.debug('Stopping bot...')
 
@@ -170,6 +219,10 @@ export class BotClient extends Client<true> {
 		return ok(undefined)
 	}
 
+	/**
+	 * Retrieves the health status of the bot and its components.
+	 * @returns A `HealthCheck` object.
+	 */
 	public async getHealth(): Promise<HealthCheck> {
 		const serviceHealth = await this.serviceManager.getHealth()
 		const pluginHealth = await this.pluginManager.getHealth()

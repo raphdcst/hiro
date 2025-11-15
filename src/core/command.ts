@@ -3,61 +3,44 @@ import type {
 	SlashCommandBuilder,
 } from 'discord.js'
 import type { Result } from 'neverthrow'
-import type winston from 'winston'
+import type { container } from 'tsyringe'
 import type { BotClient } from '#core/client'
-import { CommandError, type MiddlewareError } from '#core/errors'
-import { createLogger } from '#core/logger'
-import {
-	type CommandContext,
-	type Middleware,
-	TypedMetadata,
-} from '#core/middleware'
+import type { CommandError } from '#core/errors'
+import type { Middleware, TypedMetadata } from '#core/middleware'
 
-export abstract class BaseCommand {
-	public abstract readonly name: string
-	public abstract readonly description: string
-	private _logger: winston.Logger | undefined
-	private readonly middlewares: Middleware[] = []
-
-	protected get logger(): winston.Logger {
-		if (!this._logger) {
-			this._logger = createLogger(this.name, 'command')
-		}
-		return this._logger
-	}
-
-	public use(middleware: Middleware): void {
-		this.middlewares.push(middleware)
-	}
-
-	public abstract buildCommand(): SlashCommandBuilder
-
-	public abstract execute(
-		ctx: CommandContext,
-	): Promise<Result<void, CommandError>>
-
-	public async _execute(
-		interaction: ChatInputCommandInteraction,
-		client: BotClient,
-	): Promise<Result<void, CommandError>> {
-		const ctx: CommandContext = {
-			interaction,
-			client,
-			metadata: new TypedMetadata(),
-		}
-
-		const run = async (index: number): Promise<Result<void, CommandError>> => {
-			if (index >= this.middlewares.length) {
-				return this.execute(ctx)
-			}
-			const middleware = this.middlewares[index]!
-			const result = await middleware(ctx, () => run(index + 1))
-			return result.mapErr(
-				(err: MiddlewareError) =>
-					new CommandError('Middleware execution failed', { cause: err }),
-			)
-		}
-
-		return run(0)
-	}
+/**
+ * The context for a command execution.
+ */
+export interface CommandContext {
+	/** The interaction that triggered the command. */
+	interaction: ChatInputCommandInteraction
+	/** The bot client instance. */
+	client: BotClient
+	/** The dependency injection container. */
+	container: typeof container
+	/** A typed map for sharing data between middlewares. */
+	metadata: TypedMetadata
 }
+
+/**
+ * Represents a slash command.
+ */
+export interface Command {
+	/** The slash command builder from discord.js. */
+	data: SlashCommandBuilder
+	/**
+	 * The function to execute when the command is called.
+	 * @param ctx The command context.
+	 * @returns A `Result` indicating success or a `CommandError`.
+	 */
+	run: (ctx: CommandContext) => Promise<Result<void, CommandError>>
+	/** An array of middlewares to apply to the command. */
+	middlewares?: Middleware[]
+}
+
+/**
+ * A factory function to create a command object.
+ * @param command The command object.
+ * @returns The command object.
+ */
+export const createCommand = (command: Command): Command => command
