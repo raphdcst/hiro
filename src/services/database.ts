@@ -84,7 +84,7 @@ export class DatabaseService
 
 		this.logger.debug('Disconnecting from database...')
 		return handleDisconnection(
-			() => this._sql!.close(),
+			() => this._sql?.close(),
 			'Database disconnected successfully.',
 			'Failed to disconnect from database',
 			this.logger,

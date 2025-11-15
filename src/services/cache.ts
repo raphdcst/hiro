@@ -67,7 +67,7 @@ export class CacheService extends BaseService implements ICacheServiceType {
 		this.logger.debug('Disconnecting from Redis cache...')
 
 		return handleDisconnection(
-			() => this._redis!.close(),
+			() => this._redis?.close(),
 			'Redis cache disconnected successfully.',
 			'Failed to disconnect from Redis cache',
 			this.logger,
