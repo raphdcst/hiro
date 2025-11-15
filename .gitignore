@@ -1,3 +1,6 @@
+# custom
+.gemini
+
 # dependencies (bun install)
 node_modules
 
