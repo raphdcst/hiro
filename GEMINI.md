@@ -41,9 +41,6 @@
     "type-check": "tsc --noEmit",
     "check": "biome check",
     "check:fix": "biome check --write",
-    "service:create": "bun run scripts/create_service",
-    "plugin:create": "bun run scripts/create_plugin",
-    "command:create": "bun run scripts/create_command"
 },
 ```
 
