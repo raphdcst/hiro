@@ -26,7 +26,8 @@
     "#interfaces/*": ["./src/interfaces/*"],
     "#plugins/*": ["./src/plugins/*"],
     "#commands/*": ["./src/commands/*"],
-    "#middlewares/*": ["./src/middlewares/*"]
+    "#middlewares/*": ["./src/middlewares/*"],
+    "#utils/*": ["./src/utils/*"]
 }
 ```
 
@@ -416,6 +417,7 @@ export class PingCommand extends BaseCommand {
 ### 4) Middlewares
 
 **Location**:
+
 - Types/utils: `./src/core/middleware.ts`
 - Implementations: `./src/middlewares/<name>.middleware.ts`
 
@@ -587,7 +589,9 @@ import { z } from "zod";
 
 const EnvSchema = z.object({
   // global
-  NODE_ENV: z.enum(["development", "production", "test"]).default("development"),
+  NODE_ENV: z
+    .enum(["development", "production", "test"])
+    .default("development"),
 
   // discord
   DISCORD_TOKEN: z.string().min(1),

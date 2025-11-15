@@ -40,7 +40,8 @@
 			"#interfaces/*": ["./src/interfaces/*"],
 			"#plugins/*": ["./src/plugins/*"],
 			"#commands/*": ["./src/commands/*"],
-			"#middlewares/*": ["./src/middlewares/*"]
+			"#middlewares/*": ["./src/middlewares/*"],
+			"#utils/*": ["./src/utils/*"]
 		}
 	},
 	"include": ["src/**/*"],
