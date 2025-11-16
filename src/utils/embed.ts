@@ -2,7 +2,7 @@ import { Colors, EmbedBuilder, type APIEmbed } from 'discord.js'
 
 type EmbedLevel = 'success' | 'error' | 'warning' | 'info'
 
-type EmbedData = APIEmbed & {
+export type EmbedData = APIEmbed & {
 	level?: EmbedLevel
 }
 
@@ -21,11 +21,17 @@ export function getColorFromEmbedType(type?: EmbedLevel): number {
 	}
 }
 
-export function createEmbed(data: EmbedData): EmbedBuilder {
-	const mergedData = {
-		...data,
-		color: getColorFromEmbedType(data.level),
-	}
+export const createEmbedFactory = (embedDefaults: Partial<EmbedData>) => {
+	return function createEmbed(
+		data: EmbedData,
+		useDefaults: boolean = true,
+	): EmbedBuilder {
+		const mergedData = {
+			...(useDefaults ? embedDefaults : {}),
+			...data,
+			color: getColorFromEmbedType(data.level),
+		}
 
-	return EmbedBuilder.from(mergedData)
+		return EmbedBuilder.from(mergedData)
+	}
 }

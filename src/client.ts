@@ -24,7 +24,14 @@ const client = new BotClient({
 	services: [DatabaseService, CacheService],
 	plugins: [],
 	commands: [ping, db, help, info],
-	config: {},
+	config: {
+		embed: {
+			footer: {
+				text: 'HIRO',
+			},
+			timestamp: new Date().toISOString(),
+		},
+	},
 })
 
 container.register(BotClient, { useValue: client })

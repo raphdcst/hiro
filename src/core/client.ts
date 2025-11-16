@@ -1,4 +1,4 @@
-import { Client, type ClientOptions, Events } from 'discord.js'
+import { Client, type ClientOptions, type APIEmbed, Events } from 'discord.js'
 import { err, fromPromise, ok, type Result } from 'neverthrow'
 import { container, singleton, type InjectionToken } from 'tsyringe'
 import type winston from 'winston'
@@ -17,6 +17,7 @@ import type { Command } from '#core/command'
 import { ServiceManager } from '#managers/service.manager'
 import { PluginManager, type PluginHealth } from '#managers/plugin.manager'
 import { CommandManager } from '#managers/command.manager'
+import { createEmbedFactory, type EmbedData } from '#utils/embed'
 
 /**
  * Represents the health status of the bot.
@@ -34,12 +35,16 @@ export interface HealthCheck {
 	plugins: Record<string, PluginHealth>
 }
 
+export interface BotClientConfig {
+	embed?: Partial<APIEmbed>
+}
+
 /**
  * Options for the BotClient.
  */
 export interface BotClientOptions extends ClientOptions {
 	/** Configuration flags for the bot. */
-	config?: Record<string, unknown>
+	config?: BotClientConfig
 	/** An array of service classes to register. */
 	services: Array<InjectionToken<BaseService>>
 	/** An array of plugin classes to register. */
@@ -55,7 +60,7 @@ export interface BotClientOptions extends ClientOptions {
 @singleton()
 export class BotClient extends Client<true> {
 	/** Configuration flags for the bot. */
-	public readonly config: Record<string, unknown>
+	public readonly config: BotClientConfig
 	/** Manages the lifecycle of services. */
 	public readonly serviceManager: ServiceManager
 	/** Manages plugins and orchestrates hooks. */
@@ -63,6 +68,10 @@ export class BotClient extends Client<true> {
 	/** Manages and executes commands. */
 	public readonly commandManager: CommandManager
 	private readonly logger: winston.Logger
+	public readonly createEmbed: (
+		data: EmbedData,
+		useDefaults?: boolean,
+	) => import('discord.js').EmbedBuilder
 
 	/**
 	 * @param options The options for the bot client.
@@ -75,6 +84,8 @@ export class BotClient extends Client<true> {
 		this.serviceManager = container.resolve(ServiceManager)
 		this.pluginManager = container.resolve(PluginManager)
 		this.commandManager = container.resolve(CommandManager)
+
+		this.createEmbed = createEmbedFactory(this.config.embed ?? {})
 
 		for (const toRegister of [
 			options.services,

@@ -1,6 +1,6 @@
 import { createCommand } from '#core/command'
 import { CommandManager } from '#core/managers/command.manager'
-import { createEmbed } from '#utils/embed'
+
 import { ok } from 'neverthrow'
 
 export const help = createCommand({
@@ -8,11 +8,11 @@ export const help = createCommand({
 		name: 'help',
 		description: 'Show available commands and their descriptions.',
 	},
-	run: async ({ interaction, container }) => {
+	run: async ({ interaction, container, client }) => {
 		const commandManager = container.resolve<CommandManager>(CommandManager)
 		const commands = commandManager.commandsMetadata
 
-		const embed = createEmbed({
+		const embed = client.createEmbed({
 			level: 'info',
 			title: 'Help',
 			description: 'Here are the available commands:',

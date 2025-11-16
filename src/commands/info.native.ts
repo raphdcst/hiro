@@ -1,6 +1,5 @@
 import { ok } from 'neverthrow'
 import { createCommand } from '#core/command'
-import { createEmbed } from '#utils/embed'
 
 export const info = createCommand({
 	data: {
@@ -8,9 +7,9 @@ export const info = createCommand({
 		description: 'Display information about the bot',
 	},
 	run: async ({ interaction, client }) => {
-		const embed = createEmbed({
+		const embed = client.createEmbed({
 			level: 'info',
-			title: 'Bot infos',
+			title: 'Infos',
 			fields: [
 				{
 					name: 'Name',

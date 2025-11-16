@@ -1,7 +1,6 @@
 import { ok } from 'neverthrow'
 import { createCommand } from '#core/command'
 import { loggerMiddleware } from '#middlewares/logger'
-import { createEmbed } from '#utils/embed'
 
 export const ping = createCommand({
 	data: {
@@ -9,7 +8,7 @@ export const ping = createCommand({
 		description: 'Replies with pong!',
 	},
 	run: async ({ interaction, client }) => {
-		const embed = createEmbed({
+		const embed = client.createEmbed({
 			level: 'info',
 			title: 'Pong!',
 			description: `Latency: ${client.ws.ping}ms`,
