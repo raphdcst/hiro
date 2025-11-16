@@ -28,6 +28,17 @@ export class CommandManager {
 		this.logger = createLogger('command', 'manager')
 	}
 
+	public get commandsMetadata(): Array<{ name: string; description: string }> {
+		const commands = Array.from(this.commands.values())
+		const metadata = commands.map((command) => {
+			return {
+				name: command.data.name,
+				description: command.data.description,
+			}
+		})
+		return metadata
+	}
+
 	/**
 	 * Registers a new command.
 	 * @param command The command to register.
