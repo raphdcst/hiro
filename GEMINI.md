@@ -113,14 +113,30 @@ src/
 - Coordination between managers
 - Global lifecycle management
 
+**Options**:
+
+```ts
+interface BotClientOptions extends ClientOptions {
+  config?: BotClientConfig;
+  services: Array<InjectionToken<BaseService>>;
+  plugins: Array<InjectionToken<BasePlugin>>;
+  commands: Command[];
+}
+
+interface BotClientConfig {
+  embedDefaults?: Partial<import('discord.js').APIEmbed>;
+}
+```
+
 **Public API**:
 
 ```ts
 class BotClient extends Client {
-  public readonly config: Record<string, unknown>;
+  public readonly config: BotClientConfig;
   public readonly serviceManager: ServiceManager;
   public readonly pluginManager: PluginManager;
   public readonly commandManager: CommandManager;
+  public readonly createEmbed: (data: EmbedData, useDefaults?: boolean) => import('discord.js').EmbedBuilder;
 
   constructor(options: BotClientOptions);
 
@@ -394,19 +410,18 @@ import {
   IDatabaseService,
   type IDatabaseService as IDatabaseServiceType,
 } from "#interfaces/database";
-import { createEmbed } from "#utils/embed";
 
 export const db = createCommand({
   data: {
     name: "db",
     description: "Test the database connection.",
   },
-  run: async ({ interaction, container }) => {
+  run: async ({ interaction, container, client }) => {
     const db = container.resolve<IDatabaseServiceType>(IDatabaseService);
     const result = await db.getStatus();
 
     if (result.isErr()) {
-      const embed = createEmbed({
+      const embed = client.createEmbed({
         level: "error",
         title: "Database connection failed",
         description: result.error.message,
@@ -417,7 +432,7 @@ export const db = createCommand({
       return ok(undefined);
     }
 
-    const embed = createEmbed({
+    const embed = client.createEmbed({
       level: "success",
       title: "Database connection successful",
       description: `Database status: ${JSON.stringify(result.value)}`,
@@ -465,30 +480,40 @@ type Middleware = (
 ### 5) `createEmbed`
 
 **Location**: `./src/utils/embed.ts`
-**Usage**: `createEmbed(options)`
+**Usage**: `client.createEmbed(options)`
 
 **Responsibilities**:
 
 - Creates a standardized `EmbedBuilder` instance.
 - Automatically sets a color based on the embed level (`info`, `success`, `warning`, `error`).
+- Merges the provided data with the `embedDefaults` from the `BotClient` configuration.
 
-**Interface**:
+**Factory**:
 
 ```ts
-function createEmbed(options: {
-  level: "info" | "success" | "warning" | "error";
-  title: string;
-  description?: string;
-  fields?: { name: string; value: string }[];
-}): EmbedBuilder;
+export const createEmbedFactory = (
+	embedDefaults: Partial<EmbedData>,
+) => {
+	return function createEmbed(
+		data: EmbedData,
+		useDefaults: boolean = true,
+	): EmbedBuilder {
+		const mergedData = {
+			...(useDefaults ? embedDefaults : {}),
+			...data,
+			color: getColorFromEmbedType(data.level),
+		}
+
+		return EmbedBuilder.from(mergedData)
+	}
+}
 ```
 
 **Example**:
 
 ```ts
-import { createEmbed } from "#utils/embed";
-
-const embed = createEmbed({
+// in a command
+const embed = client.createEmbed({
   level: "success",
   title: "Success!",
   description: "The operation was successful.",
