@@ -1,5 +1,5 @@
 import { REST } from '@discordjs/rest'
-import type { ChatInputCommandInteraction } from 'discord.js'
+import { type ChatInputCommandInteraction, MessageFlags } from 'discord.js'
 import { Routes } from 'discord-api-types/v10'
 import { err, fromPromise, ok, type Result } from 'neverthrow'
 import { container, singleton } from 'tsyringe'
@@ -73,7 +73,10 @@ export class CommandManager {
 			this.logger.warn(
 				`No command found for interaction: ${interaction.commandName}`,
 			)
-			await interaction.reply({ content: 'Unknown command.', ephemeral: true })
+			await interaction.reply({
+				content: 'Unknown command.',
+				flags: MessageFlags.Ephemeral,
+			})
 			return err(
 				new CommandNotFoundError(
 					`Command "${interaction.commandName}" not found.`,
@@ -112,7 +115,7 @@ export class CommandManager {
 			if (!interaction.replied && !interaction.deferred) {
 				await interaction.reply({
 					content: 'An error occurred while executing the command.',
-					ephemeral: true,
+					flags: MessageFlags.Ephemeral,
 				})
 			}
 		}
