@@ -1,8 +1,44 @@
-import { env } from '#core/env'
-import { createLogger } from '#core/logger'
-import { client } from './client'
+import { GatewayIntentBits } from 'discord.js'
+import { BotClient, container, createLogger, env } from 'hiro'
+
+import { CacheService, DatabaseService } from '@hiro/services'
+
+import { ModerationPlugin } from '@hiro/plugins'
+
+import {
+	ban,
+	db,
+	help,
+	history,
+	info,
+	kick,
+	mute,
+	ping,
+	unmute,
+	warn,
+} from '@hiro/commands'
 
 const logger = createLogger('process')
+
+const client = new BotClient({
+	intents: [
+		GatewayIntentBits.Guilds,
+		GatewayIntentBits.GuildMessages,
+		GatewayIntentBits.MessageContent,
+	],
+	services: [DatabaseService, CacheService],
+	plugins: [ModerationPlugin],
+	commands: [ping, db, help, info, warn, kick, ban, history, mute, unmute],
+	config: {
+		embed: {
+			footer: {
+				text: 'HIRO',
+			},
+		},
+	},
+})
+
+container.register(BotClient, { useValue: client })
 
 async function main() {
 	const environment = {

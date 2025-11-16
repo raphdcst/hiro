@@ -1,7 +1,7 @@
 import { ok } from 'neverthrow'
 import { createCommand } from '#core/command'
 import { ApplicationCommandOptionType, MessageFlags } from 'discord.js'
-import { ModerationPlugin } from '#plugins/moderation.plugin'
+import { ModerationPlugin } from '@hiro/plugins'
 import { nanoid } from 'nanoid'
 
 export const ban = createCommand({

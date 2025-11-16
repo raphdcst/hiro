@@ -1,0 +1,16 @@
+{
+	"name": "@hiro/commands",
+	"version": "1.0.0",
+	"type": "module",
+	"main": "./src/index.ts",
+	"types": "./src/index.ts",
+	"dependencies": {
+		"hiro": "workspace:*"
+	},
+	"peerDependencies": {
+		"discord.js": "workspace:*",
+		"reflect-metadata": "workspace:*",
+		"tsyringe": "workspace:*",
+		"typescript": "workspace:*"
+	}
+}

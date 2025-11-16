@@ -13,7 +13,7 @@ import {
 	IDatabaseService,
 	type IDatabaseServiceType,
 } from '#interfaces/database'
-import { handleConnection, handleDisconnection } from '../utils/connection'
+import { handleConnection, handleDisconnection } from '#utils/connection'
 
 /**
  * Service for interacting with the database.

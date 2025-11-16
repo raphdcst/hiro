@@ -4,7 +4,7 @@ import {
 	IDatabaseService,
 	type IDatabaseServiceType,
 } from '#interfaces/database'
-import { moderation } from '../database/schemas/moderation'
+import { moderation } from '@hiro/services'
 import { and, eq } from 'drizzle-orm'
 import { type Result, err, ok } from 'neverthrow'
 import { PluginError } from '#core/errors'

@@ -1,9 +1,19 @@
 {
-	"name": "hiro",
+	"name": "hiro-project",
 	"version": "0.0.1",
 	"module": "src/main.ts",
 	"type": "module",
 	"private": true,
+	"workspaces": [
+		"packages/*"
+	],
+	"resolutions": {
+		"discord.js": "14.24.2",
+		"tsyringe": "4.10.0",
+		"reflect-metadata": "0.2.2",
+		"typescript": "5.9.3",
+		"neverthrow": "8.2.0"
+	},
 	"scripts": {
 		"prepare": "husky",
 		"dev": "bun run --watch src/main.ts",
@@ -19,23 +29,23 @@
 		"@types/bun": "latest",
 		"commitizen": "^4.3.1",
 		"cz-conventional-changelog": "^3.3.0",
-		"drizzle-kit": "^0.31.6",
+		"drizzle-kit": "^0.31.7",
 		"husky": "^9.1.7",
-		"lint-staged": "^16.1.6"
+		"lint-staged": "^16.2.6"
 	},
 	"peerDependencies": {
-		"typescript": "^5"
+		"typescript": "^5.9.3"
 	},
 	"dependencies": {
-		"discord.js": "^14.22.1",
+		"discord.js": "^14.24.2",
 		"drizzle-orm": "^0.44.7",
 		"nanoid": "^5.1.6",
 		"neverthrow": "^8.2.0",
 		"pg": "^8.16.3",
 		"reflect-metadata": "^0.2.2",
 		"tsyringe": "^4.10.0",
-		"winston": "^3.17.0",
-		"zod": "^4.1.5"
+		"winston": "^3.18.3",
+		"zod": "^4.1.12"
 	},
 	"config": {
 		"commitizen": {
@@ -46,5 +56,6 @@
 		"*.{js,ts,cjs,mjs,d.cts,d.mts,jsx,tsx,json,jsonc}": [
 			"biome check --write --no-errors-on-unmatched"
 		]
-	}
+	},
+	"packageManager": "bun@1.2.18"
 }
