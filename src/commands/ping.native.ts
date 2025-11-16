@@ -1,4 +1,3 @@
-import { SlashCommandBuilder } from 'discord.js'
 import { ok } from 'neverthrow'
 import { createCommand } from '#core/command'
 import { loggerMiddleware } from '#middlewares/logger'
