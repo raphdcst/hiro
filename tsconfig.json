@@ -34,16 +34,18 @@
 		"rootDir": ".",
 
 		"paths": {
-			"#core/*": ["./src/core/*"],
-			"#managers/*": ["./src/core/managers/*"],
-			"#services/*": ["./src/services/*"],
-			"#interfaces/*": ["./src/interfaces/*"],
-			"#plugins/*": ["./src/plugins/*"],
-			"#commands/*": ["./src/commands/*"],
-			"#middlewares/*": ["./src/middlewares/*"],
-			"#utils/*": ["./src/utils/*"]
+			"hiro": ["./packages/hiro/src/client"],
+			"hiro/*": ["./packages/hiro/src/*"],
+			"#core/*": ["./packages/hiro/src/core/*"],
+			"#managers/*": ["./packages/hiro/src/core/managers/*"],
+			"#interfaces/*": ["./packages/hiro/src/interfaces/*"],
+			"@hiro/services": ["./packages/services/src/index"],
+			"@hiro/plugins": ["./packages/plugins/src/index"],
+			"@hiro/commands": ["./packages/commands/src/index"],
+			"#middlewares/*": ["./packages/hiro/src/middlewares/*"],
+			"#utils/*": ["./packages/hiro/src/utils/*"]
 		}
 	},
-	"include": ["src/**/*"],
+	"include": ["src/**/*", "packages/**/*"],
 	"exclude": ["node_modules", "dist"]
 }

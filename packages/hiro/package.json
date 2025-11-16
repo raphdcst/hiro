@@ -1,0 +1,17 @@
+{
+	"name": "hiro",
+	"version": "1.0.0",
+	"type": "module",
+	"main": "./src/client.ts",
+	"types": "./src/client.ts",
+	"scripts": {
+		"type-check": "tsc --noEmit"
+	},
+	"peerDependencies": {
+		"discord.js": "workspace:*",
+		"reflect-metadata": "workspace:*",
+		"tsyringe": "workspace:*",
+		"typescript": "workspace:*",
+		"neverthrow": "workspace:*"
+	}
+}

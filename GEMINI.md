@@ -20,14 +20,14 @@
 
 ```json
 "paths": {
-    "#core/*": ["./src/core/*"],
-    "#managers/*": ["./src/core/managers/*"],
-    "#services/*": ["./src/services/*"],
-    "#interfaces/*": ["./src/interfaces/*"],
-    "#plugins/*": ["./src/plugins/*"],
-    "#commands/*": ["./src/commands/*"],
-    "#middlewares/*": ["./src/middlewares/*"],
-    "#utils/*": ["./src/utils/*"]
+    "#core/*": ["./packages/hiro/src/core/*"],
+    "#managers/*": ["./packages/hiro/src/core/managers/*"],
+    "#services/*": ["./packages/services/src/*"],
+    "#interfaces/*": ["./packages/hiro/src/interfaces/*"],
+    "#plugins/*": ["./packages/plugins/src/*"],
+    "#commands/*": ["./packages/commands/src/*"],
+    "#middlewares/*": ["./packages/hiro/src/middlewares/*"],
+    "#utils/*": ["./packages/hiro/src/utils/*"]
 }
 ```
 
@@ -47,28 +47,45 @@
 ### File Structure
 
 ```
-src/
-├── core/
-│   ├── client.ts              # BotClient (main orchestrator)
-│   ├── managers/
-│   │   ├── service.manager.ts # Manages the lifecycle of services
-│   │   ├── plugin.manager.ts  # Manages plugin hooks and registry
-│   │   └── command.manager.ts # Routes and executes commands
-│   ├── env.ts                 # Validated environment variables (Zod)
-│   ├── logger.ts              # Logger factory (Winston)
-│   ├── command.ts             # Command factory function
-│   ├── middleware.ts          # Middleware types and utilities
-│   ├── plugin.ts              # BasePlugin abstract class
-│   ├── service.ts             # BaseService abstract class
-│   └── errors.ts              # Custom error hierarchy
+packages/
 ├── commands/                  # Command implementations
-├── middlewares/               # Middleware implementations
+│   └── src/
+│       └── ...
+├── hiro/                      # Core HIRO framework
+│   └── src/
+│       ├── client.ts          # BotClient instance
+│       ├── core/
+│       │   ├── client.ts      # BotClient (main orchestrator)
+│       │   ├── command.ts     # Command factory function
+│       │   ├── decorators.ts
+│       │   ├── env.ts         # Validated environment variables (Zod)
+│       │   ├── errors.ts      # Custom error hierarchy
+│       │   ├── logger.ts      # Logger factory (Winston)
+│       │   ├── middleware.ts  # Middleware types and utilities
+│       │   ├── plugin.ts      # BasePlugin abstract class
+│       │   ├── service.ts     # BaseService abstract class
+│       │   └── managers/
+│       │       ├── command.manager.ts # Routes and executes commands
+│       │       ├── plugin.manager.ts  # Manages plugin hooks and registry
+│       │       └── service.manager.ts # Manages the lifecycle of services
+│       ├── interfaces/        # Service interfaces for DI
+│       │   ├── cache.ts
+│       │   └── database.ts
+│       ├── middlewares/       # Middleware implementations
+│       │   └── logger.ts
+│       └── utils/             # Utils
+│           ├── connection.ts
+│           ├── embed.ts
+│           ├── error.ts
+│           └── time.ts
 ├── plugins/                   # Plugin implementations
-├── services/                  # Service implementations
-├── interfaces/                # Service interfaces for DI
-├── utils/                     # Utils
-├── client.ts                  # BotClient instance
-└── main.ts                    # Entry point
+│   └── src/
+│       └── ...
+└── services/                  # Service implementations
+    └── src/
+        └── ...
+src/                           # Main application entry point
+└── main.ts
 ```
 
 ### Layers
@@ -257,8 +274,8 @@ class CommandManager {
 
 ### 1) `BaseService`
 
-**Location**: `./src/core/service.ts`
-**Usage**: Classes in `./src/services/<name>.service.ts`
+**Location**: `./packages/hiro/src/core/service.ts`
+**Usage**: Classes in `./packages/services/src/<name>.service.ts`
 
 **Responsibilities**:
 
@@ -321,8 +338,8 @@ export class DatabaseService extends BaseService implements IDatabaseService {
 
 ### 2) `BasePlugin`
 
-**Location**: `./src/core/plugin.ts`
-**Usage**: Classes in `./src/plugins/<name>.plugin.ts`
+**Location**: `./packages/hiro/src/core/plugin.ts`
+**Usage**: Classes in `./packages/plugins/src/<name>.plugin.ts`
 
 **Responsibilities**:
 
@@ -362,8 +379,8 @@ abstract class BasePlugin {
 
 ### 3) `Command`
 
-**Location**: `./src/core/command.ts`
-**Usage**: Files in `./src/commands/<name>.command.ts` using the `createCommand` factory.
+**Location**: `./packages/hiro/src/core/command.ts`
+**Usage**: Files in `./packages/commands/src/<name>.command.ts` using the `createCommand` factory.
 
 **Responsibilities**:
 
@@ -451,8 +468,8 @@ export const db = createCommand({
 
 **Location**:
 
-- Types/utils: `./src/core/middleware.ts`
-- Implementations: `./src/middlewares/<name>.middleware.ts`
+- Types/utils: `./packages/hiro/src/core/middleware.ts`
+- Implementations: `./packages/hiro/src/middlewares/<name>.middleware.ts`
 
 **Responsibilities**:
 
@@ -479,7 +496,7 @@ type Middleware = (
 
 ### 5) `createEmbed`
 
-**Location**: `./src/utils/embed.ts`
+**Location**: `./packages/hiro/src/utils/embed.ts`
 **Usage**: `client.createEmbed(options)`
 
 **Responsibilities**:

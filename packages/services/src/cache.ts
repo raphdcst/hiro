@@ -14,7 +14,7 @@ import {
 import { env } from '#core/env'
 import { RedisClient } from 'bun'
 import { ICacheService, type ICacheServiceType } from '#interfaces/cache'
-import { handleConnection, handleDisconnection } from '../utils/connection'
+import { handleConnection, handleDisconnection } from '#utils/connection'
 
 /**
  * Service for interacting with the Redis cache.
