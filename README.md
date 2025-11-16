@@ -1,8 +1,7 @@
-### TODO
+# HIRO
 
-- Improve command builder
-- Add natives commands : info, status, guild...
-- Add registration logs for middlewares
-- Add supports for decorators-based DI in commands
-- Adapt services and plugins in factories
-- wrapper for error handling ?
+**HIRO** is a modern Discord bot framework based on a modular plug-n-play architecture, offering an optimal DX through dependency injection, a strict typing system, and robust error handling.
+
+## Documentation
+
+For detailed documentation, please see [GEMINI.md](GEMINI.md).

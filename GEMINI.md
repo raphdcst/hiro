@@ -148,6 +148,8 @@ class BotClient extends Client {
 
 ```ts
 class ServiceManager {
+  public readonly services: Map<string, BaseService>;
+
   register(service: BaseService): Result<void, RegistrationError>;
 
   async connectAll(): Promise<Result<void, ConnectionError>>;
@@ -218,6 +220,8 @@ class PluginManager {
 
 ```ts
 class CommandManager {
+  public readonly commandsMetadata: { name: string; description: string }[];
+
   register(command: Command): Result<void, RegistrationError>;
 
   async handleInteraction(
@@ -355,7 +359,10 @@ abstract class BasePlugin {
 
 ```ts
 interface Command {
-  data: SlashCommandBuilder;
+  data: {
+    name: string;
+    description: string;
+  };
   run: (ctx: CommandContext) => Promise<Result<void, CommandError>>;
   middlewares?: Middleware[];
 }
@@ -381,31 +388,43 @@ interface CommandContext {
 **Example**:
 
 ```ts
-import { SlashCommandBuilder } from "discord.js";
 import { ok } from "neverthrow";
 import { createCommand } from "#core/command";
 import {
   IDatabaseService,
   type IDatabaseService as IDatabaseServiceType,
 } from "#interfaces/database";
+import { createEmbed } from "#utils/embed";
 
 export const db = createCommand({
-  data: new SlashCommandBuilder()
-    .setName("db")
-    .setDescription("Test the database connection."),
+  data: {
+    name: "db",
+    description: "Test the database connection.",
+  },
   run: async ({ interaction, container }) => {
     const db = container.resolve<IDatabaseServiceType>(IDatabaseService);
     const result = await db.getStatus();
 
     if (result.isErr()) {
+      const embed = createEmbed({
+        level: "error",
+        title: "Database connection failed",
+        description: result.error.message,
+      });
       await interaction.reply({
-        content: "Failed to get database status.",
+        embeds: [embed],
       });
       return ok(undefined);
     }
 
+    const embed = createEmbed({
+      level: "success",
+      title: "Database connection successful",
+      description: `Database status: ${JSON.stringify(result.value)}`,
+    });
+
     await interaction.reply({
-      content: `Database status: ${JSON.stringify(result.value)}`,
+      embeds: [embed],
     });
 
     return ok(undefined);
@@ -442,6 +461,39 @@ type Middleware = (
 - Return without calling `next()` to short-circuit.
 
 **Logger**: `middleware:<name>`
+
+### 5) `createEmbed`
+
+**Location**: `./src/utils/embed.ts`
+**Usage**: `createEmbed(options)`
+
+**Responsibilities**:
+
+- Creates a standardized `EmbedBuilder` instance.
+- Automatically sets a color based on the embed level (`info`, `success`, `warning`, `error`).
+
+**Interface**:
+
+```ts
+function createEmbed(options: {
+  level: "info" | "success" | "warning" | "error";
+  title: string;
+  description?: string;
+  fields?: { name: string; value: string }[];
+}): EmbedBuilder;
+```
+
+**Example**:
+
+```ts
+import { createEmbed } from "#utils/embed";
+
+const embed = createEmbed({
+  level: "success",
+  title: "Success!",
+  description: "The operation was successful.",
+});
+```
 
 ---
 
