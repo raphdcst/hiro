@@ -2,7 +2,7 @@ import { REST } from '@discordjs/rest'
 import type { ChatInputCommandInteraction } from 'discord.js'
 import { Routes } from 'discord-api-types/v10'
 import { err, fromPromise, ok, type Result } from 'neverthrow'
-import { container, injectable } from 'tsyringe'
+import { container, singleton } from 'tsyringe'
 import type winston from 'winston'
 import type { BotClient } from '#core/client'
 import type { Command, CommandContext } from '#core/command'
@@ -19,7 +19,7 @@ import { TypedMetadata } from '#core/middleware'
 /**
  * Manages the registration, execution, and lifecycle of commands.
  */
-@injectable()
+@singleton()
 export class CommandManager {
 	private readonly logger: winston.Logger
 	private readonly commands = new Map<string, Command>()
