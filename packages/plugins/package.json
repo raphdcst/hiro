@@ -7,10 +7,6 @@
 	"dependencies": {
 		"hiro": "workspace:*"
 	},
-	"scripts": {
-		"build": "tsc --build",
-		"clean": "rm -rf dist"
-	},
 	"peerDependencies": {
 		"discord.js": "workspace:*",
 		"reflect-metadata": "workspace:*",
