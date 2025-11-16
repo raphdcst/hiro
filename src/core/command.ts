@@ -1,6 +1,6 @@
 import type {
 	ChatInputCommandInteraction,
-	SlashCommandBuilder,
+	RESTPostAPIChatInputApplicationCommandsJSONBody,
 } from 'discord.js'
 import type { Result } from 'neverthrow'
 import type { container } from 'tsyringe'
@@ -27,7 +27,7 @@ export interface CommandContext {
  */
 export interface Command {
 	/** The slash command builder from discord.js. */
-	data: SlashCommandBuilder
+	data: RESTPostAPIChatInputApplicationCommandsJSONBody
 	/**
 	 * The function to execute when the command is called.
 	 * @param ctx The command context.

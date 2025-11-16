@@ -131,7 +131,7 @@ export class CommandManager {
 	> {
 		this.logger.debug('Registering slash commands with Discord...')
 		const rest = new REST({ version: '10' }).setToken(env.DISCORD_TOKEN)
-		const body = Array.from(this.commands.values()).map((c) => c.data.toJSON())
+		const body = Array.from(this.commands.values()).map((c) => c.data)
 
 		const result = await fromPromise(
 			rest.put(Routes.applicationCommands(env.DISCORD_CLIENT_ID), {
