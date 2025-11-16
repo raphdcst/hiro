@@ -92,10 +92,10 @@ export class CommandManager {
 
 		const middlewares = command.middlewares ?? []
 		const run = async (index: number): Promise<Result<void, CommandError>> => {
-			if (index >= middlewares.length) {
+			const middleware = middlewares[index]
+			if (!middleware) {
 				return command.run(ctx)
 			}
-			const middleware = middlewares[index]!
 			const result = await middleware(ctx, () => run(index + 1))
 			return result.mapErr(
 				(err: MiddlewareError) =>
